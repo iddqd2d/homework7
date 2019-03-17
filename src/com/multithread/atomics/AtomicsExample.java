@@ -1,23 +1,26 @@
 package com.multithread.atomics;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 public class AtomicsExample {
-    private static final int defaultValueArray = 10;
+    private static final int defaultValue = 0;
+    private static int counter;
+    private static AtomicInteger counterAtomic = new AtomicInteger(defaultValue);
 
-    public static void main(String[] args) {
-        AtomicBoolean atomicBoolean = new AtomicBoolean(true);
-        AtomicInteger atomicInteger = new AtomicInteger(Integer.MIN_VALUE);
-        AtomicLong atomicLong = new AtomicLong(Long.MAX_VALUE);
-        AtomicIntegerArray atomicIntegerArray = new AtomicIntegerArray(defaultValueArray);
 
-        for (int i = 0; i < defaultValueArray; i++) {
-            atomicIntegerArray.addAndGet(i, i);
-        }
-        atomicIntegerArray.addAndGet(1, 2);
-        System.out.println(atomicIntegerArray);
+    public static void main(String[] args) throws InterruptedException {
+        IntStream.range(defaultValue, Byte.MAX_VALUE).forEach(i -> new Thread(() -> {
+            increment();
+            counterAtomic.incrementAndGet();
+        }).start());
+
+        Thread.sleep(1000);
+        System.out.println(counter);
+        System.out.println(counterAtomic);
+    }
+
+    public static void increment() {
+        counter++;
     }
 }
